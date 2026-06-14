@@ -3,6 +3,7 @@ import { BookOpen, Library } from "lucide-react";
 import { SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
 
 import ThemeToggle from "@/components/theme/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 type AppChromeProps = {
   children: React.ReactNode;
@@ -16,14 +17,18 @@ const AppChrome = ({ children }: AppChromeProps) => (
       <div className="mx-auto flex h-10 w-full max-w-none items-center justify-end px-4 md:px-6 gap-4">
         <Show when="signed-out">
           <SignInButton mode="modal">
-            <button className="text-xs font-bold uppercase tracking-widest text-foreground hover:text-[#e3120b] transition-colors">
+            <Button className="text-xs rounded-none font-bold uppercase text-foreground transition-colors cursor-pointer"
+              variant="destructive"
+            >
               Sign In
-            </button>
+            </Button>
           </SignInButton>
           <SignUpButton mode="modal">
-            <button className="text-xs font-bold uppercase tracking-widest text-foreground hover:text-[#e3120b] transition-colors">
+            <Button className="text-xs rounded-none font-bold uppercase text-foreground  transition-colors cursor-pointer"
+              variant="outline"
+            >
               Sign Up
-            </button>
+            </Button>
           </SignUpButton>
         </Show>
         <Show when="signed-in">
@@ -44,15 +49,15 @@ const AppChrome = ({ children }: AppChromeProps) => (
         </Link>
 
         <nav className="flex items-center gap-8 border-y border-border/60 py-3 w-full justify-center">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest hover:text-[#e3120b] transition-colors relative after:absolute after:bottom-[-13px] after:left-0 after:h-[2px] after:w-0 after:bg-[#e3120b] hover:after:w-full after:transition-all"
           >
             <Library className="size-4" />
             <span>Library</span>
           </Link>
-          <Link 
-            href="/economist/bookmarks" 
+          <Link
+            href="/economist/bookmarks"
             className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest hover:text-[#e3120b] transition-colors relative after:absolute after:bottom-[-13px] after:left-0 after:h-[2px] after:w-0 after:bg-[#e3120b] hover:after:w-full after:transition-all"
           >
             <BookOpen className="size-4" />
