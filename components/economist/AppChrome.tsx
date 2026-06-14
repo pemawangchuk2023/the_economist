@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BookOpen, Library } from "lucide-react";
+import { SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
 
 import ThemeToggle from "@/components/theme/theme-toggle";
 
@@ -12,7 +13,22 @@ const AppChrome = ({ children }: AppChromeProps) => (
     <div className="h-1 w-full bg-[#e3120b]" />
     <header className="sticky top-0 z-40 bg-background border-b border-border/60">
       {/* Top Utilities Bar */}
-      <div className="mx-auto flex h-10 w-full max-w-5xl items-center justify-end px-4 md:px-6">
+      <div className="mx-auto flex h-10 w-full max-w-none items-center justify-end px-4 md:px-6 gap-4">
+        <Show when="signed-out">
+          <SignInButton mode="modal">
+            <button className="text-xs font-bold uppercase tracking-widest text-foreground hover:text-[#e3120b] transition-colors">
+              Sign In
+            </button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="text-xs font-bold uppercase tracking-widest text-foreground hover:text-[#e3120b] transition-colors">
+              Sign Up
+            </button>
+          </SignUpButton>
+        </Show>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
         <ThemeToggle />
       </div>
 

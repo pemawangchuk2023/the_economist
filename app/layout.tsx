@@ -1,3 +1,4 @@
+import {ClerkProvider} from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -37,14 +38,16 @@ const RootLayout = ({
       className={cn("h-full", "antialiased", inter.variable, playfair.variable)}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <ThemeProvider
+        <ClerkProvider>
+          <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        >
+          >
           {children}
-        </ThemeProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
