@@ -133,8 +133,67 @@ export const createPrefix = (year?: string, month?: string) => {
   return "";
 };
 
+const MONTH_INDEXES = new Map(
+  MONTHS.flatMap((month, index) => [
+    [month.toLowerCase(), index] as const,
+    [month.slice(0, 3).toLowerCase(), index] as const,
+  ])
+);
+
+MONTH_INDEXES.set("sept", 8);
+
+const MONTH_PATTERN = Array.from(MONTH_INDEXES.keys())
+  .sort((left, right) => right.length - left.length)
+  .join("|");
+const ISSUE_START_DATE_PATTERN = new RegExp(
+  `\\b(${MONTH_PATTERN})\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`,
+  "i"
+);
+
+const getIssueStartTime = (issue: PdfIssue) => {
+  const dateSource = `${issue.title} ${issue.fileName}`.replace(/[_+]+/g, " ");
+  const match = dateSource.match(ISSUE_START_DATE_PATTERN);
+
+  if (!match) {
+    return null;
+  }
+
+  const monthIndex = MONTH_INDEXES.get(match[1].toLowerCase());
+  const day = Number(match[2]);
+  const year = Number(issue.year);
+
+  if (monthIndex === undefined || !Number.isInteger(year)) {
+    return null;
+  }
+
+  const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+
+  if (!Number.isInteger(day) || day < 1 || day > daysInMonth) {
+    return null;
+  }
+
+  return Date.UTC(year, monthIndex, day);
+};
+
 export const sortIssues = (issues: PdfIssue[]) =>
   [...issues].sort((left, right) => {
+    const leftIssueDate = getIssueStartTime(left);
+    const rightIssueDate = getIssueStartTime(right);
+
+    if (leftIssueDate !== null || rightIssueDate !== null) {
+      if (leftIssueDate === null) {
+        return 1;
+      }
+
+      if (rightIssueDate === null) {
+        return -1;
+      }
+
+      if (leftIssueDate !== rightIssueDate) {
+        return leftIssueDate - rightIssueDate;
+      }
+    }
+
     const leftDate = left.lastModified ? Date.parse(left.lastModified) : 0;
     const rightDate = right.lastModified ? Date.parse(right.lastModified) : 0;
 
