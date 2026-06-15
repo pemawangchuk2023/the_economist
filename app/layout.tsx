@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import AuthToasts from "@/components/economist/AuthToasts";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,6 +53,8 @@ const RootLayout = ({
             disableTransitionOnChange
           >
             {children}
+            <AuthToasts />
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

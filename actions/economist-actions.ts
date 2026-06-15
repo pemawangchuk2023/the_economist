@@ -14,11 +14,17 @@ import {
   withDownloadCounts,
 } from "@/lib/economist";
 import { requireAuthenticatedUserId } from "@/lib/auth";
-import { headR2Object, listR2Objects, R2ConfigurationError } from "@/lib/r2";
+import {
+  createR2SignedUrl,
+  headR2Object,
+  listR2Objects,
+  R2ConfigurationError,
+} from "@/lib/r2";
 import {
   getBookmarkedIssues,
   getDownloadCounts,
   getLibraryState,
+  incrementDownloadCount,
   removeBookmark,
   saveBookmark,
 } from "@/lib/economist-store";
@@ -154,4 +160,21 @@ export const removeBookmarkAction = async (key: string) => {
   revalidateIssuePaths(normalizedKey);
 
   return normalizedKey;
+};
+
+export const createDownloadUrlAction = async (key: string) => {
+  await requireAuthenticatedUserId();
+
+  const issue = await getIssueFromR2(key);
+  const [url] = await Promise.all([
+    createR2SignedUrl(issue.key, "attachment"),
+    incrementDownloadCount(issue.key),
+  ]);
+
+  revalidateIssuePaths(issue.key);
+
+  return {
+    url,
+    fileName: issue.fileName,
+  };
 };

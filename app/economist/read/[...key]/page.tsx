@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import {
   getLibraryStateAction,
   getReaderDataAction,
 } from "@/actions/economist-actions";
+import DownloadIssueAction from "@/components/economist/DownloadIssueAction";
 import IssueActions from "@/components/economist/IssueActions";
 import PdfReader from "@/components/economist/PdfReader";
 import { Button } from "@/components/ui/button";
@@ -60,12 +61,7 @@ const ReaderPage = async ({ params }: ReaderPageProps) => {
           </Link>
         </Button>
         <div className="flex flex-wrap items-center gap-2">
-          <Button asChild size="sm">
-            <a href={getDownloadHref(issue.key)}>
-              <Download />
-              <span>Download</span>
-            </a>
-          </Button>
+          <DownloadIssueAction issue={issue} mode="button" />
           <IssueActions
             issue={issue}
             initialBookmark={store.bookmarks[issue.key]}

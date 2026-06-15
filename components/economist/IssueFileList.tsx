@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
-import { Bookmark, BookmarkCheck, Download, Eye, Search } from "lucide-react";
+import { Bookmark, BookmarkCheck, Eye, Search } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   bookmarkIssueAction,
   removeBookmarkAction,
 } from "@/actions/economist-actions";
+import DownloadIssueAction from "@/components/economist/DownloadIssueAction";
 import { Input } from "@/components/ui/input";
 import {
   formatBytes,
   formatDate,
   formatDownloadCount,
-  getDownloadHref,
   getReadHref,
 } from "@/lib/economist";
 import type { BookmarkRecord, LibraryStore, PdfIssue } from "@/types/economist";
@@ -87,14 +88,20 @@ const IssueFileList = ({
       try {
         if (wasBookmarked) {
           await removeBookmarkAction(issue.key);
+          toast.success("Removed from bookmarks", {
+            description: issue.title,
+          });
         } else {
           const savedBookmark = await bookmarkIssueAction(issue.key);
           setBookmarks((current) => ({
             ...current,
             [issue.key]: savedBookmark,
           }));
+          toast.success("Bookmarked successfully", {
+            description: issue.title,
+          });
         }
-      } catch {
+      } catch (error) {
         setBookmarks((current) => {
           const nextBookmarks = { ...current };
 
@@ -105,6 +112,10 @@ const IssueFileList = ({
           }
 
           return nextBookmarks;
+        });
+        toast.error("Bookmark update failed", {
+          description:
+            error instanceof Error ? error.message : "Please try again.",
         });
       } finally {
         pendingKeySetRef.current.delete(issue.key);
@@ -175,12 +186,7 @@ const IssueFileList = ({
                     >
                       <Eye className="size-3" /> Read
                     </Link>
-                    <a
-                      href={getDownloadHref(issue.key)}
-                      className="flex items-center gap-1 transition-colors hover:text-[#e3120b]"
-                    >
-                      <Download className="size-3" /> Download
-                    </a>
+                    <DownloadIssueAction issue={issue} />
                     <button
                       type="button"
                       aria-pressed={isBookmarked}

@@ -3,7 +3,6 @@ import { BookOpen, Library } from "lucide-react";
 import { UserButton, Show } from "@clerk/nextjs";
 
 import ThemeToggle from "@/components/theme/theme-toggle";
-import { Button } from "@/components/ui/button";
 
 type AppChromeProps = {
   children: React.ReactNode;

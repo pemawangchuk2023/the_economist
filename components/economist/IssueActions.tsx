@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   bookmarkIssueAction,
@@ -43,11 +44,21 @@ const IssueActions = ({
       try {
         if (previousBookmark) {
           await removeBookmarkAction(issue.key);
+          toast.success("Removed from bookmarks", {
+            description: issue.title,
+          });
         } else {
           setBookmark(await bookmarkIssueAction(issue.key));
+          toast.success("Bookmarked successfully", {
+            description: issue.title,
+          });
         }
-      } catch {
+      } catch (error) {
         setBookmark(previousBookmark);
+        toast.error("Bookmark update failed", {
+          description:
+            error instanceof Error ? error.message : "Please try again.",
+        });
       } finally {
         pendingRef.current = false;
         setIsPending(false);
