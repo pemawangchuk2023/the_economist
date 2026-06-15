@@ -4,6 +4,7 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
+  PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -116,7 +117,35 @@ const assertPdfKey = (key: string) => {
   return normalizedKey;
 };
 
-const createContentDisposition = (
+const normalizeStoreKey = (key: string) => {
+  const normalizedKey = normalizeObjectKey(key);
+
+  if (!normalizedKey || normalizedKey.toLowerCase().endsWith(".pdf")) {
+    throw new Error("Invalid R2 metadata object key.");
+  }
+
+  return normalizedKey;
+};
+
+export const isR2NotFoundError = (error: unknown) =>
+  error instanceof Error &&
+  (error.name === "NoSuchKey" ||
+    error.name === "NotFound" ||
+    ("$metadata" in error &&
+      (error as { $metadata?: { httpStatusCode?: number } }).$metadata
+        ?.httpStatusCode === 404));
+
+export const isR2ConditionalWriteError = (error: unknown) =>
+  error instanceof Error &&
+  (error.name === "PreconditionFailed" ||
+    error.name === "ConditionalRequestConflict" ||
+    ("$metadata" in error &&
+      [409, 412].includes(
+        (error as { $metadata?: { httpStatusCode?: number } }).$metadata
+          ?.httpStatusCode ?? 0
+      )));
+
+export const createR2ContentDisposition = (
   mode: "inline" | "attachment",
   key: string
 ) => {
@@ -174,6 +203,49 @@ export const headR2Object = async (key: string): Promise<R2Object> => {
   };
 };
 
+export const getR2ObjectText = async (key: string) => {
+  const normalizedKey = normalizeStoreKey(key);
+  const { client, config } = getR2Client();
+  const response = await client.send(
+    new GetObjectCommand({
+      Bucket: config.bucketName,
+      Key: normalizedKey,
+    })
+  );
+
+  return {
+    etag: response.ETag,
+    text: (await response.Body?.transformToString()) ?? "",
+  };
+};
+
+export const putR2ObjectText = async ({
+  key,
+  text,
+  etag,
+  onlyIfMissing,
+}: {
+  key: string;
+  text: string;
+  etag?: string;
+  onlyIfMissing?: boolean;
+}) => {
+  const normalizedKey = normalizeStoreKey(key);
+  const { client, config } = getR2Client();
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: config.bucketName,
+      Key: normalizedKey,
+      Body: text,
+      ContentType: "application/json; charset=utf-8",
+      CacheControl: "no-store",
+      IfMatch: etag,
+      IfNoneMatch: onlyIfMissing ? "*" : undefined,
+    })
+  );
+};
+
 export const createR2SignedUrl = async (
   key: string,
   mode: "inline" | "attachment"
@@ -183,11 +255,37 @@ export const createR2SignedUrl = async (
   const command = new GetObjectCommand({
     Bucket: config.bucketName,
     Key: normalizedKey,
-    ResponseContentDisposition: createContentDisposition(mode, normalizedKey),
+    ResponseContentDisposition: createR2ContentDisposition(
+      mode,
+      normalizedKey
+    ),
     ResponseContentType: "application/pdf",
   });
 
   return getSignedUrl(client, command, {
     expiresIn: config.signedUrlExpiresSeconds,
   });
+};
+
+export const getR2PdfObject = async (
+  key: string,
+  range?: string
+) => {
+  const normalizedKey = assertPdfKey(key);
+  const { client, config } = getR2Client();
+  const response = await client.send(
+    new GetObjectCommand({
+      Bucket: config.bucketName,
+      Key: normalizedKey,
+      Range: range,
+    })
+  );
+
+  return {
+    body: response.Body,
+    contentLength: response.ContentLength,
+    contentRange: response.ContentRange,
+    etag: response.ETag,
+    lastModified: response.LastModified,
+  };
 };

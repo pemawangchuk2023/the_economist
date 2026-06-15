@@ -12,7 +12,7 @@ This project demonstrates professional full-stack development practices with a f
 - **Next.js App Router** for scalable, file-based routing
 - **Component-driven architecture** with reusable UI patterns
 - **Cloud storage integration** (Cloudflare R2) for efficient document delivery
-- **Advanced state management** with localStorage persistence
+- **Advanced state management** with Cloudflare R2-backed metadata persistence
 - **Responsive UI design** with theme support (light/dark mode)
 - **PDF rendering** and document streaming capabilities
 
@@ -23,9 +23,9 @@ This is an educational endeavor to master modern web development patterns, not a
 ## 🏗️ Architecture
 
 ### Tech Stack
-- **Frontend**: Next.js 14+ (App Router), React 18, TypeScript
+- **Frontend**: Next.js 16+ (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui component library
-- **State Management**: Custom hooks with localStorage persistence
+- **State Management**: R2-backed server state with optimistic client UI
 - **Storage**: Cloudflare R2 (S3-compatible object storage)
 - **Development**: ESLint, PostCSS, TypeScript strict mode
 
@@ -47,7 +47,7 @@ economist/
 │   └── ui/                  # Reusable UI components (shadcn)
 ├── lib/
 │   ├── economist.ts         # Core business logic
-│   ├── economist-store.ts   # State management (localStorage)
+│   ├── economist-store.ts   # R2-backed library metadata store
 │   ├── r2.ts                # Cloud storage client
 │   └── utils.ts             # Utility functions
 ├── types/                   # TypeScript definitions
@@ -117,9 +117,9 @@ npm run format  # if configured
    - Responsive design for desktop and tablet viewing
 
 ### 3. **Bookmark System**
-   - Client-side bookmark persistence with localStorage
+   - Per-user bookmark persistence in Cloudflare R2
    - Quick access to saved issues
-   - Reading progress tracking
+   - Download counts stored with library metadata
 
 ### 4. **Theme Support**
    - Light/dark mode toggle
@@ -141,11 +141,10 @@ This project uses Next.js 13+ App Router with intelligent component splitting:
 - **Client Components**: Interactive features, theme switching, state management
 
 ### State Management
-Custom localStorage-based state hooks for:
-- Reading history
-- Bookmarks
-- User preferences
-- Theme selection
+Server-backed metadata state for:
+- Per-user bookmarks
+- Global download counts
+- Theme selection remains client-side through the theme provider
 
 ### Server Actions
 RESTful API routes in `app/*/route.ts` for:

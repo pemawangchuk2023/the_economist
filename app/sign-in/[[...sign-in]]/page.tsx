@@ -27,7 +27,12 @@ export default function SignInPage() {
               Access your study library and bookmarks
             </p>
           </div>
-          <SignIn />
+          <SignIn
+            routing="path"
+            path="/sign-in"
+            fallbackRedirectUrl="/economist"
+            signUpUrl="/sign-up"
+          />
         </div>
       </div>
     </div>

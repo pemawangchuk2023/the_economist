@@ -24,10 +24,15 @@ export default function SignUpPage() {
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
             <p className="text-muted-foreground text-sm">
-              Join to access The Economist's study library
+              Join to access The Economist&apos;s study library
             </p>
           </div>
-          <SignUp />
+          <SignUp
+            routing="path"
+            path="/sign-up"
+            fallbackRedirectUrl="/economist"
+            signInUrl="/sign-in"
+          />
         </div>
       </div>
     </div>

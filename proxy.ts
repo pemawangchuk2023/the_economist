@@ -1,15 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/public(.*)",
-]);
-
-const isProtectedRoute = createRouteMatcher([
-  "/economist(.*)",
-]);
+const isProtectedRoute = createRouteMatcher(["/economist(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   if (isProtectedRoute(request)) {
@@ -19,6 +10,8 @@ export default clerkMiddleware(async (auth, request) => {
 
 export const config = {
   matcher: [
+    "/economist/preview/(.*)",
+    "/economist/download/(.*)",
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/(api|trpc)(.*)",
     "/__clerk/:path*",

@@ -1,4 +1,4 @@
-import type { PdfIssue, ReadingStatus } from "@/types/economist";
+import type { PdfIssue } from "@/types/economist";
 
 export const LIBRARY_YEARS = ["2026", "2025", "2024", "2023"];
 
@@ -17,22 +17,11 @@ export const MONTHS = [
   "December",
 ];
 
-export const DEFAULT_READING_STATUS: ReadingStatus = "not-started";
-
-export const READING_STATUS_LABELS: Record<ReadingStatus, string> = {
-  "not-started": "Not Started",
-  reading: "Reading",
-  completed: "Completed",
-};
-
 type R2ObjectLike = {
   key: string;
   size?: number;
   lastModified?: Date | string;
 };
-
-export const isReadingStatus = (value: string): value is ReadingStatus =>
-  value === "not-started" || value === "reading" || value === "completed";
 
 export const safeDecodeURIComponent = (value: string) => {
   try {
@@ -107,7 +96,29 @@ export const createPdfIssue = (object: R2ObjectLike): PdfIssue | null => {
     month: parsed.month,
     size: object.size,
     lastModified,
+    downloadCount: 0,
   };
+};
+
+export const withDownloadCount = <T extends PdfIssue>(
+  issue: T,
+  downloadCounts: Record<string, number>
+): T => ({
+  ...issue,
+  downloadCount: Math.max(0, Math.trunc(downloadCounts[issue.key] ?? 0)),
+});
+
+export const withDownloadCounts = <T extends PdfIssue>(
+  issues: T[],
+  downloadCounts: Record<string, number>
+) => issues.map((issue) => withDownloadCount(issue, downloadCounts));
+
+export const formatDownloadCount = (count: number) => {
+  const normalizedCount = Math.max(0, Math.trunc(count));
+
+  return `${new Intl.NumberFormat("en").format(normalizedCount)} ${
+    normalizedCount === 1 ? "download" : "downloads"
+  }`;
 };
 
 export const createPrefix = (year?: string, month?: string) => {
@@ -139,6 +150,9 @@ export const encodeObjectKeyForPath = (key: string) =>
 
 export const getReadHref = (key: string) =>
   `/economist/read/${encodeObjectKeyForPath(key)}`;
+
+export const getPreviewHref = (key: string) =>
+  `/economist/preview/${encodeObjectKeyForPath(key)}`;
 
 export const getDownloadHref = (key: string) =>
   `/economist/download/${encodeObjectKeyForPath(key)}`;

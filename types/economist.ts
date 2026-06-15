@@ -1,5 +1,3 @@
-export type ReadingStatus = "not-started" | "reading" | "completed";
-
 export type PdfIssue = {
   key: string;
   fileName: string;
@@ -8,6 +6,7 @@ export type PdfIssue = {
   month: string;
   size?: number;
   lastModified?: string;
+  downloadCount: number;
 };
 
 export type BookmarkRecord = PdfIssue & {
@@ -16,7 +15,7 @@ export type BookmarkRecord = PdfIssue & {
 
 export type LibraryStore = {
   bookmarks: Record<string, BookmarkRecord>;
-  readingStatuses: Record<string, ReadingStatus>;
+  downloadCounts: Record<string, number>;
 };
 
 export type PdfIssueResult = {
@@ -27,6 +26,6 @@ export type PdfIssueResult = {
 
 export type PdfReaderResult = {
   issue?: PdfIssue;
-  signedUrl?: string;
+  previewUrl?: string;
   error?: string;
 };

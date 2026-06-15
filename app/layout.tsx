@@ -1,4 +1,4 @@
-import {ClerkProvider} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -32,24 +32,29 @@ const RootLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("h-full", "antialiased", inter.variable, playfair.variable)}
-    >
-      <body className="min-h-full flex flex-col font-sans">
-        <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/">
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={cn(
+          "h-full",
+          "antialiased",
+          inter.variable,
+          playfair.variable
+        )}
+      >
+        <body className="flex min-h-full flex-col font-sans">
           <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
           >
-          {children}
+            {children}
           </ThemeProvider>
-        </ClerkProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 };
 

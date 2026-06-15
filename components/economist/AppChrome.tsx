@@ -16,15 +16,17 @@ const AppChrome = ({ children }: AppChromeProps) => (
       {/* Top Utilities Bar */}
       <div className="mx-auto flex h-10 w-full max-w-none items-center justify-end px-4 md:px-6 gap-4">
         <Show when="signed-out">
-          <SignInButton mode="modal">
-            <Button className="text-xs rounded-none font-bold uppercase text-foreground transition-colors cursor-pointer"
+          <SignInButton mode="modal" fallbackRedirectUrl="/economist">
+            <Button
+              className="cursor-pointer rounded-none text-xs font-bold uppercase text-foreground transition-colors"
               variant="destructive"
             >
               Sign In
             </Button>
           </SignInButton>
-          <SignUpButton mode="modal">
-            <Button className="text-xs rounded-none font-bold uppercase text-foreground  transition-colors cursor-pointer"
+          <SignUpButton mode="modal" fallbackRedirectUrl="/economist">
+            <Button
+              className="cursor-pointer rounded-none text-xs font-bold uppercase text-foreground transition-colors"
               variant="outline"
             >
               Sign Up

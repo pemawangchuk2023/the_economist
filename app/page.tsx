@@ -31,12 +31,12 @@ const Home = () => (
 
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
-              <SignUpButton mode="modal">
+              <SignUpButton mode="modal" fallbackRedirectUrl="/economist">
                 <button className="px-6 py-2 bg-[#e3120b] text-white font-bold rounded-none hover:bg-[#c20a08] transition-colors cursor-pointer">
                   Create Account
                 </button>
               </SignUpButton>
-              <SignInButton mode="modal">
+              <SignInButton mode="modal" fallbackRedirectUrl="/economist">
                 <button className="px-6 py-2 border-2 border-foreground font-bold rounded-none hover:bg-muted transition-colors cursor-pointer">
                   Sign In
                 </button>

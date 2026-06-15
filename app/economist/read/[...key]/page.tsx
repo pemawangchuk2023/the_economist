@@ -9,9 +9,9 @@ import IssueActions from "@/components/economist/IssueActions";
 import PdfReader from "@/components/economist/PdfReader";
 import { Button } from "@/components/ui/button";
 import {
-  DEFAULT_READING_STATUS,
   formatBytes,
   formatDate,
+  formatDownloadCount,
   getDownloadHref,
   normalizeObjectKey,
 } from "@/lib/economist";
@@ -32,7 +32,7 @@ const ReaderPage = async ({ params }: ReaderPageProps) => {
     getLibraryStateAction(),
   ]);
 
-  if (!reader.issue || !reader.signedUrl) {
+  if (!reader.issue || !reader.previewUrl) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6">
         <Button asChild variant="outline" size="sm">
@@ -69,9 +69,6 @@ const ReaderPage = async ({ params }: ReaderPageProps) => {
           <IssueActions
             issue={issue}
             initialBookmark={store.bookmarks[issue.key]}
-            initialStatus={
-              store.readingStatuses[issue.key] ?? DEFAULT_READING_STATUS
-            }
           />
         </div>
       </div>
@@ -81,12 +78,17 @@ const ReaderPage = async ({ params }: ReaderPageProps) => {
           {issue.title}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {issue.year} · {issue.month} · {formatBytes(issue.size)} ·{" "}
-          {formatDate(issue.lastModified)}
+          {issue.year} / {issue.month} / {formatBytes(issue.size)} /{" "}
+          {formatDate(issue.lastModified)} /{" "}
+          {formatDownloadCount(issue.downloadCount)}
         </p>
       </header>
 
-      <PdfReader title={issue.title} signedUrl={reader.signedUrl} />
+      <PdfReader
+        title={issue.title}
+        previewUrl={reader.previewUrl}
+        downloadHref={getDownloadHref(issue.key)}
+      />
     </div>
   );
 };

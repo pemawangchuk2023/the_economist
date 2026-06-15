@@ -6,23 +6,21 @@ import {
   createPdfIssue,
   encodeObjectKeyForPath,
   createPrefix,
-  isReadingStatus,
+  getPreviewHref,
   normalizeObjectKey,
   parsePdfKey,
   sortIssues,
+  withDownloadCount,
+  withDownloadCounts,
 } from "@/lib/economist";
-import {
-  createR2SignedUrl,
-  headR2Object,
-  listR2Objects,
-  R2ConfigurationError,
-} from "@/lib/r2";
+import { requireAuthenticatedUserId } from "@/lib/auth";
+import { headR2Object, listR2Objects, R2ConfigurationError } from "@/lib/r2";
 import {
   getBookmarkedIssues,
+  getDownloadCounts,
   getLibraryState,
   removeBookmark,
   saveBookmark,
-  saveReadingStatus,
 } from "@/lib/economist-store";
 import type {
   BookmarkRecord,
@@ -30,7 +28,6 @@ import type {
   PdfIssue,
   PdfIssueResult,
   PdfReaderResult,
-  ReadingStatus,
 } from "@/types/economist";
 
 type ListPdfIssuesInput = {
@@ -85,12 +82,17 @@ export const listPdfIssuesAction = async ({
   month,
 }: ListPdfIssuesInput = {}): Promise<PdfIssueResult> => {
   try {
-    const objects = await listR2Objects(createPrefix(year, month));
+    await requireAuthenticatedUserId();
+
+    const [objects, downloadCounts] = await Promise.all([
+      listR2Objects(createPrefix(year, month)),
+      getDownloadCounts(),
+    ]);
     const issues = objects
       .map((object) => createPdfIssue(object))
       .filter(isPdfIssue);
 
-    return { issues: sortIssues(issues) };
+    return { issues: sortIssues(withDownloadCounts(issues, downloadCounts)) };
   } catch (error) {
     return {
       issues: [],
@@ -104,26 +106,41 @@ export const getReaderDataAction = async (
   key: string
 ): Promise<PdfReaderResult> => {
   try {
-    const normalizedKey = normalizeObjectKey(key);
-    const issue = await getIssueFromR2(normalizedKey);
-    const signedUrl = await createR2SignedUrl(normalizedKey, "inline");
+    await requireAuthenticatedUserId();
 
-    return { issue, signedUrl };
+    const normalizedKey = normalizeObjectKey(key);
+    const [issue, downloadCounts] = await Promise.all([
+      getIssueFromR2(normalizedKey),
+      getDownloadCounts(),
+    ]);
+
+    return {
+      issue: withDownloadCount(issue, downloadCounts),
+      previewUrl: getPreviewHref(normalizedKey),
+    };
   } catch (error) {
     return { error: getErrorMessage(error) };
   }
 };
 
-export const getLibraryStateAction = async (): Promise<LibraryStore> =>
-  getLibraryState();
+export const getLibraryStateAction = async (): Promise<LibraryStore> => {
+  const userId = await requireAuthenticatedUserId();
 
-export const getBookmarkedIssuesAction = async () => getBookmarkedIssues();
+  return getLibraryState(userId);
+};
+
+export const getBookmarkedIssuesAction = async () => {
+  const userId = await requireAuthenticatedUserId();
+
+  return getBookmarkedIssues(userId);
+};
 
 export const bookmarkIssueAction = async (
   key: string
 ): Promise<BookmarkRecord> => {
+  const userId = await requireAuthenticatedUserId();
   const issue = await getIssueFromR2(key);
-  const bookmark = await saveBookmark(issue);
+  const bookmark = await saveBookmark(userId, issue);
 
   revalidateIssuePaths(issue.key);
 
@@ -131,25 +148,10 @@ export const bookmarkIssueAction = async (
 };
 
 export const removeBookmarkAction = async (key: string) => {
+  const userId = await requireAuthenticatedUserId();
   const normalizedKey = normalizeObjectKey(key);
-  await removeBookmark(normalizedKey);
+  await removeBookmark(userId, normalizedKey);
   revalidateIssuePaths(normalizedKey);
 
   return normalizedKey;
-};
-
-export const setReadingStatusAction = async (
-  key: string,
-  status: ReadingStatus
-) => {
-  const normalizedKey = normalizeObjectKey(key);
-
-  if (!parsePdfKey(normalizedKey) || !isReadingStatus(status)) {
-    throw new Error("Invalid reading status update.");
-  }
-
-  const savedStatus = await saveReadingStatus(normalizedKey, status);
-  revalidateIssuePaths(normalizedKey);
-
-  return savedStatus;
 };
