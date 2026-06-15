@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookOpen, Library } from "lucide-react";
-import { SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
+import { UserButton, Show } from "@clerk/nextjs";
 
 import ThemeToggle from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -15,24 +15,6 @@ const AppChrome = ({ children }: AppChromeProps) => (
     <header className="sticky top-0 z-40 bg-background border-b border-border/60">
       {/* Top Utilities Bar */}
       <div className="mx-auto flex h-10 w-full max-w-none items-center justify-end px-4 md:px-6 gap-4">
-        <Show when="signed-out">
-          <SignInButton mode="modal" fallbackRedirectUrl="/economist">
-            <Button
-              className="cursor-pointer rounded-none text-xs font-bold uppercase text-foreground transition-colors"
-              variant="destructive"
-            >
-              Sign In
-            </Button>
-          </SignInButton>
-          <SignUpButton mode="modal" fallbackRedirectUrl="/economist">
-            <Button
-              className="cursor-pointer rounded-none text-xs font-bold uppercase text-foreground transition-colors"
-              variant="outline"
-            >
-              Sign Up
-            </Button>
-          </SignUpButton>
-        </Show>
         <Show when="signed-in">
           <UserButton />
         </Show>
@@ -40,7 +22,7 @@ const AppChrome = ({ children }: AppChromeProps) => (
       </div>
 
       {/* Main Branding & Nav Bar */}
-      <div className="mx-auto flex flex-col items-center justify-center gap-6 pb-6 pt-2 w-full max-w-5xl px-4 md:px-6">
+      <div className="mx-auto flex flex-col items-center justify-center gap-3 pb-3 pt-2 w-full max-w-5xl px-4 md:px-6">
         <Link href="/" className="group flex items-center justify-center">
           <span className="bg-[#e3120b] text-white font-serif text-3xl font-bold px-3 py-1 tracking-tight">
             The Economist

@@ -20,7 +20,7 @@ const PageFrame = ({
   actions,
   children,
 }: PageFrameProps) => (
-  <div className="mx-auto w-full px-4 py-8 md:px-6">
+  <div className="mx-auto w-full px-4 py-2 md:px-6">
     {backHref || actions ? (
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         {backHref ? (

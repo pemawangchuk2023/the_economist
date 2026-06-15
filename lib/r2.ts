@@ -1,3 +1,12 @@
+/*
+  This file connects our server to Cloudflare R2 storage.
+  It uses the AWS S3 SDK because Cloudflare R2 supports the S3 API.
+  It helps list, read, upload, preview, and download PDF files.
+  It also creates temporary signed URLs so private PDFs can be opened safely.
+  This file should only run on the server because it uses secret R2 keys.
+*/
+
+import "server-only";
 import "server-only";
 
 import {

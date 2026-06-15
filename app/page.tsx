@@ -20,8 +20,8 @@ const Home = () => (
       </Show>
 
       <Show when="signed-out">
-        <div className="max-w-2xl mx-auto py-12 text-center space-y-6">
-          <div className="border-2 border-[#e3120b]/20 rounded-none p-8 bg-muted/50">
+        <div className="max-w-2xl mx-auto py8 text-center space-y-6">
+          <div className="border-2 border-[#e3120b]/20 rounded-none p-4 bg-muted/50">
             <h2 className="text-2xl font-bold text-foreground mb-3">
               Welcome to The Economist Study Library
             </h2>
