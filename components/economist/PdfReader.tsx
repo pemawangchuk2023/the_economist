@@ -1,11 +1,24 @@
+import { cn } from "@/lib/utils";
+
 type PdfReaderProps = {
   title: string;
   previewUrl: string;
   downloadHref: string;
+  className?: string;
 };
 
-const PdfReader = ({ title, previewUrl, downloadHref }: PdfReaderProps) => (
-  <div className="h-[calc(100vh-220px)] min-h-[560px] overflow-hidden rounded-md border border-border bg-background">
+const PdfReader = ({
+  title,
+  previewUrl,
+  downloadHref,
+  className,
+}: PdfReaderProps) => (
+  <div
+    className={cn(
+      "h-[calc(100vh-220px)] min-h-[560px] overflow-hidden rounded-md border border-border bg-background",
+      className,
+    )}
+  >
     <iframe
       title={title}
       src={`${previewUrl}#toolbar=1&navpanes=0`}

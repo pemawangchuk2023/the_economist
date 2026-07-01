@@ -1,21 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 
-import {
-  getLibraryStateAction,
-  getReaderDataAction,
-} from "@/actions/economist-actions";
-import DownloadIssueAction from "@/components/economist/DownloadIssueAction";
-import IssueActions from "@/components/economist/IssueActions";
+import { getReaderDataAction } from "@/actions/economist-actions";
 import PdfReader from "@/components/economist/PdfReader";
 import { Button } from "@/components/ui/button";
-import {
-  formatBytes,
-  formatDate,
-  formatDownloadCount,
-  getDownloadHref,
-  normalizeObjectKey,
-} from "@/lib/economist";
+import { getDownloadHref, normalizeObjectKey } from "@/lib/economist";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +17,7 @@ type ReaderPageProps = {
 const ReaderPage = async ({ params }: ReaderPageProps) => {
   const { key: keySegments } = await params;
   const key = normalizeObjectKey(keySegments.join("/"));
-  const [reader, store] = await Promise.all([
-    getReaderDataAction(key),
-    getLibraryStateAction(),
-  ]);
+  const reader = await getReaderDataAction(key);
 
   if (!reader.issue || !reader.previewUrl) {
     return (
@@ -52,38 +38,24 @@ const ReaderPage = async ({ params }: ReaderPageProps) => {
   const issue = reader.issue;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 md:px-6 lg:py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/economist/${issue.year}/${issue.month}`}>
-            <ArrowLeft />
-            <span>{issue.month}</span>
-          </Link>
-        </Button>
-        <div className="flex flex-wrap items-center gap-2">
-          <DownloadIssueAction issue={issue} mode="button" />
-          <IssueActions
-            issue={issue}
-            initialBookmark={store.bookmarks[issue.key]}
-          />
-        </div>
-      </div>
-
-      <header className="space-y-2">
-        <h1 className="break-words text-2xl font-semibold tracking-normal md:text-3xl">
-          {issue.title}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {issue.year} / {issue.month} / {formatBytes(issue.size)} /{" "}
-          {formatDate(issue.lastModified)} /{" "}
-          {formatDownloadCount(issue.downloadCount)}
-        </p>
-      </header>
+    <div className="fixed inset-0 z-50 bg-background">
+      <Button
+        asChild
+        variant="secondary"
+        size="sm"
+        className="absolute right-4 top-4 z-10 shadow-lg"
+      >
+        <Link href={`/economist/${issue.year}/${issue.month}`}>
+          <X className="size-4" />
+          <span>Close</span>
+        </Link>
+      </Button>
 
       <PdfReader
         title={issue.title}
         previewUrl={reader.previewUrl}
         downloadHref={getDownloadHref(issue.key)}
+        className="h-screen min-h-0 w-screen rounded-none border-0"
       />
     </div>
   );
